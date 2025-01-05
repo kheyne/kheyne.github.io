@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lunch Entrees</title>
+    <title>Lunch Main Entrees</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -22,15 +22,15 @@
     </style>
 </head>
 <body>
-    <h1>Lunch Entrees</h1>
+    <h1>Lunch Main Entrees</h1>
     <ul class="entrees" id="entreeList">
-        <!-- Entrees will be dynamically populated here -->
+        <!-- Recipe names will be dynamically populated here -->
     </ul>
 
     <script>
         const API_URL = 'https://api.linqconnect.com/api/FamilyMenu?buildingId=1b413e66-5ae4-ed11-8a28-87c574706ef3&districtId=15da1d8f-53dd-ed11-8a28-ed32fde29d22&startDate=12-29-2024&endDate=2-1-2025';
 
-        async function fetchLunchEntrees() {
+        async function fetchLunchMainEntrees() {
             try {
                 const response = await fetch(API_URL);
 
@@ -50,11 +50,12 @@
                         if (menuItem.Entrees && menuItem.Entrees.length > 0) {
                             menuItem.Entrees.forEach(entree => {
                                 if (
-                                    entree.MenuPlanName.includes('Lunch') &&
-                                    entree.CategoryName === 'MainEntree'
+                                    entree.MenuPlanName && entree.MenuPlanName.includes('Lunch') &&
+                                    entree.CategoryName && entree.CategoryName === 'MainEntree' &&
+                                    entree.RecipeName
                                 ) {
                                     const li = document.createElement('li');
-                                    li.textContent = `${entree.Name} (${menuItem.Date})`;
+                                    li.textContent = entree.RecipeName;
                                     entreeList.appendChild(li);
                                     foundEntrees = true;
                                 }
@@ -64,7 +65,7 @@
 
                     if (!foundEntrees) {
                         const li = document.createElement('li');
-                        li.textContent = 'No lunch entrees found matching the criteria.';
+                        li.textContent = 'No lunch main entrees found.';
                         entreeList.appendChild(li);
                     }
                 } else {
@@ -73,13 +74,12 @@
                     entreeList.appendChild(li);
                 }
             } catch (error) {
-                console.error('Error fetching lunch entrees:', error);
+                console.error('Error fetching lunch main entrees:', error);
             }
         }
 
         // Fetch entrees on page load
-        fetchLunchEntrees();
+        fetchLunchMainEntrees();
     </script>
 </body>
 </html>
-
