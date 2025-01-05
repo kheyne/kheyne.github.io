@@ -22,7 +22,7 @@
     </style>
 </head>
 <body>
-    <h1>Lunch Main Entrees1</h1>
+    <h1>Lunch Main Entrees2</h1>
     <ul class="entrees" id="entreeList">
         <!-- Recipe names will be dynamically populated here -->
     </ul>
@@ -38,33 +38,31 @@
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
 
-                const xmlText = await response.text(); // Get the raw XML as a string
-                const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(xmlText, "application/xml"); // Parse XML
+                const data = await response.json(); // Parse JSON response
 
                 const entreeList = document.getElementById('entreeList');
                 entreeList.innerHTML = ''; // Clear existing items
 
                 let foundEntrees = false;
 
-                // Navigate the XML structure
-                const sessions = xmlDoc.querySelectorAll("FamilyMenuSession");
+                // Navigate the JSON structure
+                const sessions = data?.FamilyMenuResponseModel?.FamilyMenuSessions || [];
                 sessions.forEach(session => {
-                    const menuPlans = session.querySelectorAll("MenuPlan");
+                    const menuPlans = session.MenuPlans || [];
                     menuPlans.forEach(menuPlan => {
-                        const days = menuPlan.querySelectorAll("Day");
+                        const days = menuPlan.Days || [];
                         days.forEach(day => {
-                            const menuMeals = day.querySelectorAll("MenuMeal");
+                            const menuMeals = day.MenuMeals || [];
                             menuMeals.forEach(menuMeal => {
-                                const menuPlanName = menuMeal.querySelector("MenuPlanName")?.textContent || '';
+                                const menuPlanName = menuMeal.MenuPlanName || '';
                                 if (menuPlanName.includes("Lunch")) {
-                                    const recipeCategories = menuMeal.querySelectorAll("RecipeCategory");
+                                    const recipeCategories = menuMeal.RecipeCategories || [];
                                     recipeCategories.forEach(category => {
-                                        const categoryName = category.querySelector("CategoryName")?.textContent || '';
+                                        const categoryName = category.CategoryName || '';
                                         if (categoryName === "MainEntree") {
-                                            const recipes = category.querySelectorAll("Recipe");
+                                            const recipes = category.Recipes || [];
                                             recipes.forEach(recipe => {
-                                                const recipeName = recipe.querySelector("RecipeName")?.textContent || '';
+                                                const recipeName = recipe.RecipeName || '';
                                                 if (recipeName) {
                                                     const li = document.createElement('li');
                                                     li.textContent = recipeName;
