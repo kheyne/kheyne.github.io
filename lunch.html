@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lunch Main Entrees xml</title>
+    <title>Lunch Main Entrees</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -45,23 +45,39 @@
                 const entreeList = document.getElementById('entreeList');
                 entreeList.innerHTML = ''; // Clear existing items
 
-                // Extract "Entree" nodes
-                const entrees = xmlDoc.querySelectorAll("Entree");
-
                 let foundEntrees = false;
 
-                entrees.forEach(entree => {
-                    const menuPlanName = entree.querySelector("MenuPlanName")?.textContent || '';
-                    const categoryName = entree.querySelector("CategoryName")?.textContent || '';
-                    const recipeName = entree.querySelector("RecipeName")?.textContent || '';
-
-                    // Check criteria
-                    if (menuPlanName.includes("Lunch") && categoryName === "MainEntree" && recipeName) {
-                        const li = document.createElement('li');
-                        li.textContent = recipeName;
-                        entreeList.appendChild(li);
-                        foundEntrees = true;
-                    }
+                // Navigate the XML structure
+                const sessions = xmlDoc.querySelectorAll("FamilyMenuSession");
+                sessions.forEach(session => {
+                    const menuPlans = session.querySelectorAll("MenuPlan");
+                    menuPlans.forEach(menuPlan => {
+                        const days = menuPlan.querySelectorAll("Day");
+                        days.forEach(day => {
+                            const menuMeals = day.querySelectorAll("MenuMeal");
+                            menuMeals.forEach(menuMeal => {
+                                const menuPlanName = menuMeal.querySelector("MenuPlanName")?.textContent || '';
+                                if (menuPlanName.includes("Lunch")) {
+                                    const recipeCategories = menuMeal.querySelectorAll("RecipeCategory");
+                                    recipeCategories.forEach(category => {
+                                        const categoryName = category.querySelector("CategoryName")?.textContent || '';
+                                        if (categoryName === "MainEntree") {
+                                            const recipes = category.querySelectorAll("Recipe");
+                                            recipes.forEach(recipe => {
+                                                const recipeName = recipe.querySelector("RecipeName")?.textContent || '';
+                                                if (recipeName) {
+                                                    const li = document.createElement('li');
+                                                    li.textContent = recipeName;
+                                                    entreeList.appendChild(li);
+                                                    foundEntrees = true;
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+                            });
+                        });
+                    });
                 });
 
                 if (!foundEntrees) {
