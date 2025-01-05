@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lunch Main Entrees</title>
+    <title>Lunch Main Entrees xml</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -38,39 +38,35 @@
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
 
-                const data = await response.json();
+                const xmlText = await response.text(); // Get the raw XML as a string
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlText, "application/xml"); // Parse XML
 
                 const entreeList = document.getElementById('entreeList');
                 entreeList.innerHTML = ''; // Clear existing items
 
-                if (data && data.menu && data.menu.length > 0) {
-                    let foundEntrees = false;
+                // Extract "Entree" nodes
+                const entrees = xmlDoc.querySelectorAll("Entree");
 
-                    data.menu.forEach(menuItem => {
-                        if (menuItem.Entrees && menuItem.Entrees.length > 0) {
-                            menuItem.Entrees.forEach(entree => {
-                                if (
-                                    entree.MenuPlanName && entree.MenuPlanName.includes('Lunch') &&
-                                    entree.CategoryName && entree.CategoryName === 'MainEntree' &&
-                                    entree.RecipeName
-                                ) {
-                                    const li = document.createElement('li');
-                                    li.textContent = entree.RecipeName;
-                                    entreeList.appendChild(li);
-                                    foundEntrees = true;
-                                }
-                            });
-                        }
-                    });
+                let foundEntrees = false;
 
-                    if (!foundEntrees) {
+                entrees.forEach(entree => {
+                    const menuPlanName = entree.querySelector("MenuPlanName")?.textContent || '';
+                    const categoryName = entree.querySelector("CategoryName")?.textContent || '';
+                    const recipeName = entree.querySelector("RecipeName")?.textContent || '';
+
+                    // Check criteria
+                    if (menuPlanName.includes("Lunch") && categoryName === "MainEntree" && recipeName) {
                         const li = document.createElement('li');
-                        li.textContent = 'No lunch main entrees found.';
+                        li.textContent = recipeName;
                         entreeList.appendChild(li);
+                        foundEntrees = true;
                     }
-                } else {
+                });
+
+                if (!foundEntrees) {
                     const li = document.createElement('li');
-                    li.textContent = 'No data found for the selected date range.';
+                    li.textContent = 'No lunch main entrees found.';
                     entreeList.appendChild(li);
                 }
             } catch (error) {
