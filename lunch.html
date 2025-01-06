@@ -1,70 +1,120 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lunch Entrees</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lunch Main Entrees</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        .entrees {
-            list-style-type: none;
-            padding: 0;
-        }
-        .entrees li {
-            background: #f4f4f4;
-            margin: 10px 0;
-            padding: 10px;
-            border: 1px solid #ccc;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .entrees {
+        list-style-type: none;
+        padding: 0;
+      }
+      .entrees li {
+        background: #f4f4f4;
+        margin: 10px 0;
+        padding: 10px;
+        border: 1px solid #ccc;
+      }
     </style>
-</head>
-<body>
-    <h1>Lunch Entrees</h1>
+  </head>
+  <body>
+    <h1>Lunch Main Entrees</h1>
     <ul class="entrees" id="entreeList">
-        <!-- Entrees will be dynamically populated here -->
+      <!-- Recipe names will be dynamically populated here -->
     </ul>
 
+    <p id="demo">test</p>
+
     <script>
-        const API_URL = 'https://api.linqconnect.com/api/FamilyMenu?buildingId=1b413e66-5ae4-ed11-8a28-87c574706ef3&districtId=15da1d8f-53dd-ed11-8a28-ed32fde29d22&startDate=12-29-2024&endDate=2-1-2025';
+              const API_URL = 'https://api.linqconnect.com/api/FamilyMenu?buildingId=1b413e66-5ae4-ed11-8a28-87c574706ef3&districtId=15da1d8f-53dd-ed11-8a28-ed32fde29d22&startDate=12-29-2024&endDate=2-1-2025';
 
-        async function fetchLunchEntrees() {
-            try {
-                const response = await fetch(API_URL);
+              async function fetchLunchMainEntrees() {
+              //    try {
+                      const response = await fetch(API_URL);
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
+                      if (!response.ok) {
+                          throw new Error(`HTTP error! Status: ${response.status}`);
+                      }
 
-                const data = await response.json();
+                      const data = await response.json(); // Parse JSON response
 
-                const entreeList = document.getElementById('entreeList');
-                entreeList.innerHTML = ''; // Clear existing items
 
-                if (data && data.menu && data.menu.length > 0) {
-                    data.menu.forEach(menuItem => {
-                        if (menuItem.Entrees && menuItem.Entrees.length > 0) {
-                            menuItem.Entrees.forEach(entree => {
-                                const li = document.createElement('li');
-                                li.textContent = `${entree.Name} - ${menuItem.Date}`;
-                                entreeList.appendChild(li);
-                            });
-                        }
-                    });
-                } else {
-                    const li = document.createElement('li');
-                    li.textContent = 'No entrees found for the selected date range.';
-                    entreeList.appendChild(li);
-                }
-            } catch (error) {
-                console.error('Error fetching lunch entrees:', error);
-            }
-        }
 
-        // Fetch entrees on page load
-        fetchLunchEntrees();
+                      const entreeList = document.getElementById('entreeList');
+                      entreeList.innerHTML = ''; // Clear existing items
+
+
+
+                      let foundEntrees = false;
+
+                     // const level1 = data?.FamilyMenuSessions;
+                      // console.log(level1)
+
+
+                      // Navigate the JSON structure
+                      const sessions = data?.FamilyMenuSessions || []; 
+                      sessions.forEach(session => {
+                      	const session = sessions.FamilyMenuSession || [];
+                        session.forEach(menuPlans => {
+                        	const menuPlans = session.MenuPlans || [];
+                          menuPlans.forEach(menuPlan => {
+                          	const menuPlan = menuPlans.MenuPlan || [];
+                            menuPlan.forEach(days => {
+                            	const days = menuPlan.days || [];
+                              days.forEach(day => {
+                              	const day = days.day || [];
+                                day.forEach(menuMeal => {
+                                	const menuMeal = day. menuMeal || [];
+                                  menuMeal.forEach(recipeCategories  => {
+                                  	const recipeCategories = menuMeal.recipeCategories || [];
+                                    recipeCategories.forEach(recipeCategory => {
+                                    		const recipeCategory = recipeCategories.recipeCategory || [];
+                                        recipeCategory.forEach(recipes  => {
+                                            const recipes = recipeCategory.recipes || [];
+                                            recipes.forEach(recipe => {
+                                            	const recipe = recipes.recipe || [];
+                                              recipe.forEach(recipeName => {
+                                            		const recipeName = recipe.recipeName || [];
+                                                if (recipeName) {
+                                                	const li = document.createElement('li');
+                                                  li.textContent = recipeName;
+                                                  entreeList.appendChild(li);
+                                                  foundEntrees = true;
+                                                }
+                                              });
+                                           });
+                                        });
+                                      });
+                                   });
+                                });
+                              });
+                          });
+                      });
+                   });
+                });
+            });    
+            
+                   
+      
+                      if (!foundEntrees) {
+                          const li = document.createElement('li');
+                          li.textContent = 'No lunch main entrees found.';
+                          entreeList.appendChild(li);
+                                         }
+          /*        } catch (error) {
+                      console.error('Error fetching lunch main entrees:', error);
+                  } */
+                   console.log(entreeList)
+              }
+
+
+
+              // Fetch entrees on page load
+              fetchLunchMainEntrees();
     </script>
-</body>
+  </body>
 </html>
