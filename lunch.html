@@ -1,95 +1,103 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Lunch Main Entrees</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        .entrees {
-            list-style-type: none;
-            padding: 0;
-        }
-        .entrees li {
-            background: #f4f4f4;
-            margin: 10px 0;
-            padding: 10px;
-            border: 1px solid #ccc;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .entrees {
+        list-style-type: none;
+        padding: 0;
+      }
+      .entrees li {
+        background: #f4f4f4;
+        margin: 10px 0;
+        padding: 10px;
+        border: 1px solid #ccc;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Lunch Main Entrees2</h1>
     <ul class="entrees" id="entreeList">
-        <!-- Recipe names will be dynamically populated here -->
+      <!-- Recipe names will be dynamically populated here -->
     </ul>
 
     <script>
-        const API_URL = 'https://api.linqconnect.com/api/FamilyMenu?buildingId=1b413e66-5ae4-ed11-8a28-87c574706ef3&districtId=15da1d8f-53dd-ed11-8a28-ed32fde29d22&startDate=12-29-2024&endDate=2-1-2025';
+      var today = new Date()
+      var dd = String(today.getDate()).padStart(2, "0")
+      var mm = String(today.getMonth() + 1).padStart(2, "0") //January is 0!
+      var yyyy = today.getFullYear()
 
-        async function fetchLunchMainEntrees() {
-            try {
-                const response = await fetch(API_URL);
+      today = mm + "-" + "06" + "-" + yyyy
+      console.log(today)
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
+      const API_URL =
+        "https://api.linqconnect.com/api/FamilyMenu?buildingId=1b413e66-5ae4-ed11-8a28-87c574706ef3&districtId=15da1d8f-53dd-ed11-8a28-ed32fde29d22&startDate=" +
+        today +
+        "&endDate=" +
+        today
 
-                const data = await response.json(); // Parse JSON response
+      async function fetchLunchMainEntrees() {
+        try {
+          const response = await fetch(API_URL)
 
-                const entreeList = document.getElementById('entreeList');
-                entreeList.innerHTML = ''; // Clear existing items
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`)
+          }
 
-                let foundEntrees = false;
+          const data = await response.json() // Parse JSON response
 
-                // Navigate the JSON structure
-                const sessions = data?.FamilyMenuResponseModel?.FamilyMenuSessions || [];
-                sessions.forEach(session => {
-                    const menuPlans = session.MenuPlans || [];
-                    menuPlans.forEach(menuPlan => {
-                        const days = menuPlan.Days || [];
-                        days.forEach(day => {
-                            const menuMeals = day.MenuMeals || [];
-                            menuMeals.forEach(menuMeal => {
-                                const menuPlanName = menuMeal.MenuPlanName || '';
-                                if (menuPlanName.includes("Lunch")) {
-                                    const recipeCategories = menuMeal.RecipeCategories || [];
-                                    recipeCategories.forEach(category => {
-                                        const categoryName = category.CategoryName || '';
-                                        if (categoryName === "MainEntree") {
-                                            const recipes = category.Recipes || [];
-                                            recipes.forEach(recipe => {
-                                                const recipeName = recipe.RecipeName || '';
-                                                if (recipeName) {
-                                                    const li = document.createElement('li');
-                                                    li.textContent = recipeName;
-                                                    entreeList.appendChild(li);
-                                                    foundEntrees = true;
-                                                }
-                                            });
-                                        }
-                                    });
-                                }
-                            });
-                        });
-                    });
-                });
+          const entreeList = document.getElementById("entreeList")
+          entreeList.innerHTML = "" // Clear existing items
 
-                if (!foundEntrees) {
-                    const li = document.createElement('li');
-                    li.textContent = 'No lunch main entrees found.';
-                    entreeList.appendChild(li);
-                }
-            } catch (error) {
-                console.error('Error fetching lunch main entrees:', error);
-            }
+          let foundEntrees = false
+
+          // Navigate the JSON structure
+          const sessions = data?.FamilyMenuSessions || []
+          sessions.forEach((session) => {
+            const MenuPlans = session.MenuPlans || []
+            MenuPlans.forEach((MenuPlan) => {
+              const Days = MenuPlan.Days || []
+              Days.forEach((Day) => {
+                const MenuMeals = Day.MenuMeals || []
+                MenuMeals.forEach((MenuMeal) => {
+                  if (MenuMeal.MenuPlanName.includes("Lunch")) {
+                    const RecipeCategories = MenuMeal.RecipeCategories || []
+                    RecipeCategories.forEach((RecipeCategory) => {
+                      if (RecipeCategory.CategoryName === "Main Entree") {
+                        const Recipes = RecipeCategory.Recipes || []
+                        Recipes.forEach((Recipe) => {
+                          const li = document.createElement("li")
+                          li.textContent = Recipe.RecipeName
+                          entreeList.appendChild(li)
+                          foundEntrees = true
+                        })
+                      }
+                    })
+                  }
+                })
+              })
+            })
+          })
+
+          if (!foundEntrees) {
+            const li = document.createElement("li")
+            li.textContent = "No lunch main entrees found."
+            entreeList.appendChild(li)
+          }
+        } catch (error) {
+          console.error("Error fetching lunch main entrees:", error)
         }
+      }
 
-        // Fetch entrees on page load
-        fetchLunchMainEntrees();
+      // Fetch entrees on page load
+      fetchLunchMainEntrees()
     </script>
-</body>
+  </body>
 </html>
+
