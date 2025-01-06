@@ -23,6 +23,7 @@
   </head>
   <body>
     <h1>Lunch Main Entrees</h1>
+    <p id="MenuDate"></p>
     <ul class="entrees" id="entreeList">
       <!-- Recipe names will be dynamically populated here -->
     </ul>
@@ -64,6 +65,8 @@
             MenuPlans.forEach((MenuPlan) => {
               const Days = MenuPlan.Days || []
               Days.forEach((Day) => {
+                document.getElementById("MenuDate").innerHTML = Day.Date
+                document.getElementByID("MenuDate") = day.Date
                 const MenuMeals = Day.MenuMeals || []
                 MenuMeals.forEach((MenuMeal) => {
                   if (MenuMeal.MenuPlanName.includes("Lunch")) {
