@@ -66,7 +66,6 @@
               const Days = MenuPlan.Days || []
               Days.forEach((Day) => {
                 document.getElementById("MenuDate").innerHTML = Day.Date
-                document.getElementByID("MenuDate") = day.Date
                 const MenuMeals = Day.MenuMeals || []
                 MenuMeals.forEach((MenuMeal) => {
                   if (MenuMeal.MenuPlanName.includes("Lunch")) {
