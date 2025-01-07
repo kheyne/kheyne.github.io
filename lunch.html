@@ -6,27 +6,32 @@
     <title>Lunch Main Entrees</title>
     <style>
       body {
-        font-family: Arial, sans-serif;
+        font-family: Roboto, sans-serif;
         margin: 20px;
+        background: rgba(65, 154, 186, 0.21);
       }
-      .entrees {
-        list-style-type: none;
-        padding: 0;
+
+      td {
+        padding-right: 40px;
+        vertical-align: top;
       }
-      .entrees li {
-        background: #f4f4f4;
-        margin: 10px 0;
-        padding: 10px;
-        border: 1px solid #ccc;
+      th {
+        text-align: left;
       }
     </style>
   </head>
   <body>
-    <h1>Lunch Main Entrees</h1>
-    <p id="MenuDate"></p>
-    <ul class="entrees" id="entreeList">
-      <!-- Recipe names will be dynamically populated here -->
-    </ul>
+    <h2>CCES Lunch Menu</h2>
+    <table>
+      <tr>
+        <th id="todayDate"></th>
+        <th id="tmrwDate"></th>
+      </tr>
+      <tr>
+        <td id="todayList" style="list-style-type: none"></td>
+        <td id="tmrwList" style="list-style-type: none"></td>
+      </tr>
+    </table>
 
     <script>
       var today = new Date()
@@ -34,14 +39,26 @@
       var mm = String(today.getMonth() + 1).padStart(2, "0") //January is 0!
       var yyyy = today.getFullYear()
 
-      today = mm + "-" + dd + "-" + yyyy
-      console.log(today)
+      var tmrw = new Date()
+      tmrw.setDate(tmrw.getDate() + 1)
+      var dd2 = String(tmrw.getDate()).padStart(2, "0")
+      var mm2 = String(tmrw.getMonth() + 1).padStart(2, "0") //January is 0!
+      var yyyy2 = tmrw.getFullYear()
+
+      menuDate = mm + "-" + dd + "-" + yyyy
+      menuDate2 = mm2 + "-" + dd2 + "-" + yyyy2
 
       const API_URL =
         "https://api.linqconnect.com/api/FamilyMenu?buildingId=1b413e66-5ae4-ed11-8a28-87c574706ef3&districtId=15da1d8f-53dd-ed11-8a28-ed32fde29d22&startDate=" +
-        today +
+        menuDate +
         "&endDate=" +
-        today
+        menuDate
+
+      const API_URL2 =
+        "https://api.linqconnect.com/api/FamilyMenu?buildingId=1b413e66-5ae4-ed11-8a28-87c574706ef3&districtId=15da1d8f-53dd-ed11-8a28-ed32fde29d22&startDate=" +
+        menuDate2 +
+        "&endDate=" +
+        menuDate2
 
       async function fetchLunchMainEntrees() {
         try {
@@ -52,9 +69,10 @@
           }
 
           const data = await response.json() // Parse JSON response
+          const todayList = document.getElementById("todayList")
+          todayList.innerHTML = "" // Clear existing items
 
-          const entreeList = document.getElementById("entreeList")
-          entreeList.innerHTML = "" // Clear existing items
+          //	var MenuDate = document.getElementById("MenuDate").innerHTML
 
           let foundEntrees = false
 
@@ -65,7 +83,7 @@
             MenuPlans.forEach((MenuPlan) => {
               const Days = MenuPlan.Days || []
               Days.forEach((Day) => {
-                document.getElementById("MenuDate").innerHTML = Day.Date
+                document.getElementById("todayDate").innerHTML = Day.Date
                 const MenuMeals = Day.MenuMeals || []
                 MenuMeals.forEach((MenuMeal) => {
                   if (MenuMeal.MenuPlanName.includes("Lunch")) {
@@ -76,7 +94,7 @@
                         Recipes.forEach((Recipe) => {
                           const li = document.createElement("li")
                           li.textContent = Recipe.RecipeName
-                          entreeList.appendChild(li)
+                          todayList.appendChild(li)
                           foundEntrees = true
                         })
                       }
@@ -90,7 +108,62 @@
           if (!foundEntrees) {
             const li = document.createElement("li")
             li.textContent = "No lunch main entrees found."
-            entreeList.appendChild(li)
+            todayList.appendChild(li)
+          }
+        } catch (error) {
+          console.error("Error fetching lunch main entrees:", error)
+        }
+      }
+
+      async function fetchLunchMainEntrees2() {
+        try {
+          const response = await fetch(API_URL2)
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`)
+          }
+
+          const data = await response.json() // Parse JSON response
+          const tmrwList = document.getElementById("tmrwList")
+          tmrwList.innerHTML = "" // Clear existing items
+
+          //	var MenuDate = document.getElementById("MenuDate").innerHTML
+
+          let foundEntrees = false
+
+          // Navigate the JSON structure
+          const sessions = data?.FamilyMenuSessions || []
+          sessions.forEach((session) => {
+            const MenuPlans = session.MenuPlans || []
+            MenuPlans.forEach((MenuPlan) => {
+              const Days = MenuPlan.Days || []
+              Days.forEach((Day) => {
+                document.getElementById("tmrwDate").innerHTML = Day.Date
+                const MenuMeals = Day.MenuMeals || []
+                MenuMeals.forEach((MenuMeal) => {
+                  if (MenuMeal.MenuPlanName.includes("Lunch")) {
+                    const RecipeCategories = MenuMeal.RecipeCategories || []
+                    RecipeCategories.forEach((RecipeCategory) => {
+                      if (RecipeCategory.CategoryName === "Main Entree") {
+                        const Recipes = RecipeCategory.Recipes || []
+                        Recipes.forEach((Recipe) => {
+                          const li = document.createElement("li")
+                          li.textContent = Recipe.RecipeName
+                          tmrwList.appendChild(li)
+                          foundEntrees = true
+                        })
+                      }
+                    })
+                  }
+                })
+              })
+            })
+          })
+
+          if (!foundEntrees) {
+            const li = document.createElement("li")
+            li.textContent = "No lunch main entrees found."
+            tmrwList.appendChild(li)
           }
         } catch (error) {
           console.error("Error fetching lunch main entrees:", error)
@@ -99,7 +172,7 @@
 
       // Fetch entrees on page load
       fetchLunchMainEntrees()
+      fetchLunchMainEntrees2()
     </script>
   </body>
 </html>
-
